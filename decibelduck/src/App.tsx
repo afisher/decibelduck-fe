@@ -19,8 +19,10 @@ const App: React.FC = () => {
     const midiStatus = event.data[0] >> 4;
     if (midiStatus === NOTE_ON) {
       const midiCode = event.data[1];
-      const row = Math.floor((midiCode - 36) / 4);
-      const col = Math.floor(midiCode - 36) % 4;
+      const layer = Math.floor((midiCode - 36) / 16);
+      const value = midiCode - (36 + layer * 16);
+      const row = Math.floor(value / 4);
+      const col = value % 4;
       onButtonPress({ row, col });
     } else if (midiStatus === NOTE_OFF) {
       onButtonRelease();
