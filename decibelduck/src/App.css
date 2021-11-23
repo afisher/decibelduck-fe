@@ -22,3 +22,7 @@
 .midiButton:active {
   background-color: #132665;
 }
+
+.midiButton.selected {
+  background-color: #132665;
+}
