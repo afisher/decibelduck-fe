@@ -1,71 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import "./App.css";
-
-const NOTE_ON = 9; // 1001 0010
-const NOTE_OFF = 8; // 1000 0010
-
-type Button = {
-  row?: number;
-  col?: number;
-};
+import testSounds from "./testSounds";
+import useHowl from "./useHowl";
+import useMidiAccess from "./useMidiAccess";
+import useMidiMessages from "./useMidiMessages";
 
 const App: React.FC = () => {
-  const [currentButton, setCurrentButton] = useState<{
-    row?: number;
-    col?: number;
-  }>({});
+  const [currentButton, setCurrentButton] = useState<number>();
+  const audios = useHowl(testSounds);
+  const midiAccess = useMidiAccess();
 
-  function onMIDIMessage(event: WebMidi.MIDIMessageEvent) {
-    const midiStatus = event.data[0] >> 4;
-    if (midiStatus === NOTE_ON) {
-      const midiCode = event.data[1];
-      const layer = Math.floor((midiCode - 36) / 16);
-      const value = midiCode - (36 + layer * 16);
-      const row = Math.floor(value / 4);
-      const col = value % 4;
-      onButtonPress({ row, col });
-    } else if (midiStatus === NOTE_OFF) {
-      onButtonRelease();
-    }
-  }
+  const playSound = useCallback(
+    (index: number) => {
+      audios && audios[index].play();
+    },
+    [audios]
+  );
 
-  useEffect(() => {
-    window.navigator.requestMIDIAccess().then((midiAccess) => {
-      midiAccess.inputs.forEach(function (entry) {
-        entry.onmidimessage = onMIDIMessage;
-      });
-    });
-  }, []);
+  const onButtonPress = useCallback(
+    (index: number) => {
+      console.log(`INDEX=${index}`);
+      setCurrentButton(index);
+      playSound(index);
+    },
+    [setCurrentButton, playSound]
+  );
 
-  const onButtonPress = ({ row, col }: Button) => {
-    console.log(`ROW=${row} COL=${col}`);
-    setCurrentButton({ row, col });
-  };
+  const onButtonRelease = useCallback(() => {
+    setCurrentButton(undefined);
+  }, [setCurrentButton]);
 
-  const onButtonRelease = () => {
-    setCurrentButton({});
-  };
+  useMidiMessages({
+    midiAccess,
+    onButtonPress,
+    onButtonRelease,
+  });
 
-  const isCurrentButton = ({ row, col }: Button) => {
-    return row === currentButton.row && col === currentButton.col;
-  };
+  const isCurrentButton = (index: number) => index === currentButton;
 
-  const rows = 4;
-  const cols = 4;
   return (
-    <div className="midiButtonsContainer">
-      {[...Array(rows)].map((_, row) =>
-        [...Array(cols)].map((_, col) => (
+    <>
+      <div className="midiButtonsContainer">
+        {[...Array(16)].map((_, index) => (
           <button
             className={
-              "midiButton" +
-              (isCurrentButton({ row, col: 3 - col }) ? " selected" : "")
+              "midiButton" + (isCurrentButton(index) ? " selected" : "")
             }
-            key={`button-${row}-${col}`}
+            key={`button-${index}`}
+            onClick={() => onButtonPress(index)}
           ></button>
-        ))
-      )}
-    </div>
+        ))}
+      </div>
+    </>
   );
 };
 
