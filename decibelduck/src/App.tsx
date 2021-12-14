@@ -10,6 +10,9 @@ const App: React.FC = () => {
   const audios = useHowl(testSounds);
   const midiAccess = useMidiAccess();
 
+  // Sound may not be played in-browser until the user has interacted with the page
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
+
   const playSound = useCallback(
     (index: number) => {
       audios && audios[index].play();
@@ -38,20 +41,20 @@ const App: React.FC = () => {
 
   const isCurrentButton = (index: number) => index === currentButton;
 
-  return (
-    <>
-      <div className="midiButtonsContainer">
-        {[...Array(16)].map((_, index) => (
-          <button
-            className={
-              "midiButton" + (isCurrentButton(index) ? " selected" : "")
-            }
-            key={`button-${index}`}
-            onClick={() => onButtonPress(index)}
-          ></button>
-        ))}
-      </div>
-    </>
+  return userHasInteracted ? (
+    <div className="midiButtonsContainer">
+      {[...Array(16)].map((_, index) => (
+        <button
+          className={"midiButton" + (isCurrentButton(index) ? " selected" : "")}
+          key={`button-${index}`}
+          onClick={() => playSound(index)}
+        ></button>
+      ))}
+    </div>
+  ) : (
+    <button className="startButton" onClick={() => setUserHasInteracted(true)}>
+      Start
+    </button>
   );
 };
 
