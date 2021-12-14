@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, { useCallback, useState } from "react";
 import "./App.css";
 import testSounds from "./testSounds";
@@ -45,7 +46,10 @@ const App: React.FC = () => {
     <div className="midiButtonsContainer">
       {Array.from({ length: 16 }, (_, index) => (
         <button
-          className={"midiButton" + (isCurrentButton(index) ? " selected" : "")}
+          className={clsx({
+            midiButton: true,
+            selected: isCurrentButton(index),
+          })}
           key={`button-${index}`}
           onClick={() => playSound(index)}
         ></button>
