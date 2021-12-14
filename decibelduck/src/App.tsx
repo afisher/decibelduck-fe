@@ -43,7 +43,7 @@ const App: React.FC = () => {
 
   return userHasInteracted ? (
     <div className="midiButtonsContainer">
-      {[...Array(16)].map((_, index) => (
+      {Array.from({ length: 16 }, (_, index) => (
         <button
           className={"midiButton" + (isCurrentButton(index) ? " selected" : "")}
           key={`button-${index}`}
