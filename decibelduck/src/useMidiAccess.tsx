@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
-export default (): WebMidi.MIDIAccess | undefined => {
+/**
+ * Request MIDI access from the browser
+ */
+const useMidiAccess = (): WebMidi.MIDIAccess | undefined => {
   const [midiAccess, setMidiAccess] = useState<WebMidi.MIDIAccess>();
 
   useEffect(() => {
@@ -9,3 +12,5 @@ export default (): WebMidi.MIDIAccess | undefined => {
 
   return midiAccess;
 };
+
+export default useMidiAccess;

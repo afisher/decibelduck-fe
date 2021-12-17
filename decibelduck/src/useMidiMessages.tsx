@@ -3,15 +3,22 @@ import { useCallback, useEffect } from "react";
 const NOTE_ON = 9; // 1001 0010
 const NOTE_OFF = 8; // 1000 0010
 
-export default ({
-  midiAccess,
-  onButtonPress,
-  onButtonRelease,
-}: {
+type UseMidiMessagesParams = {
   midiAccess: WebMidi.MIDIAccess | undefined;
   onButtonPress: (index: number) => void;
   onButtonRelease: () => void;
-}): void => {
+};
+
+/**
+ * Add event listeners to all MIDI devices.
+ * Execute onButtonPress when NOTE_ON is activated,
+ * and onButtonRelease when NOTE_OFF is activated.
+ */
+const useMidiMessages = ({
+  midiAccess,
+  onButtonPress,
+  onButtonRelease,
+}: UseMidiMessagesParams): void => {
   const onMIDIMessage = useCallback(
     (event: WebMidi.MIDIMessageEvent) => {
       const midiStatus = event.data[0] >> 4;
@@ -38,3 +45,5 @@ export default ({
     }
   }, [midiAccess, onMIDIMessage]);
 };
+
+export default useMidiMessages;

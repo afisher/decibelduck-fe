@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Howl } from "howler";
 
-export default (soundURLs: string[]): Howl[] | undefined => {
+/**
+ * Load all sound files into an array of Howl objects
+ */
+const useHowl = (soundURLs: string[]): Howl[] | undefined => {
   const [audios, setAudios] = useState<Howl[]>();
 
   useEffect(() => {
@@ -10,3 +13,5 @@ export default (soundURLs: string[]): Howl[] | undefined => {
 
   return audios;
 };
+
+export default useHowl;

@@ -6,6 +6,9 @@ import useHowl from "./useHowl";
 import useMidiAccess from "./useMidiAccess";
 import useMidiMessages from "./useMidiMessages";
 
+/**
+ * Parent component of the decibelduck app
+ */
 const App: React.FC = () => {
   const [currentButton, setCurrentButton] = useState<number>();
   const audios = useHowl(testSounds);
