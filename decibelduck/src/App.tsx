@@ -1,71 +1,67 @@
-import React, { useEffect, useState } from "react";
+import clsx from "clsx";
+import React, { useCallback, useState } from "react";
 import "./App.css";
+import testSounds from "./testSounds";
+import useHowl from "./useHowl";
+import useMidiAccess from "./useMidiAccess";
+import useMidiMessages from "./useMidiMessages";
 
-const NOTE_ON = 9; // 1001 0010
-const NOTE_OFF = 8; // 1000 0010
-
-type Button = {
-  row?: number;
-  col?: number;
-};
-
+/**
+ * Parent component of the decibelduck app
+ */
 const App: React.FC = () => {
-  const [currentButton, setCurrentButton] = useState<{
-    row?: number;
-    col?: number;
-  }>({});
+  const [currentButton, setCurrentButton] = useState<number>();
+  const audios = useHowl(testSounds);
+  const midiAccess = useMidiAccess();
 
-  function onMIDIMessage(event: WebMidi.MIDIMessageEvent) {
-    const midiStatus = event.data[0] >> 4;
-    if (midiStatus === NOTE_ON) {
-      const midiCode = event.data[1];
-      const layer = Math.floor((midiCode - 36) / 16);
-      const value = midiCode - (36 + layer * 16);
-      const row = Math.floor(value / 4);
-      const col = value % 4;
-      onButtonPress({ row, col });
-    } else if (midiStatus === NOTE_OFF) {
-      onButtonRelease();
-    }
-  }
+  // Sound may not be played in-browser until the user has interacted with the page
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
 
-  useEffect(() => {
-    window.navigator.requestMIDIAccess().then((midiAccess) => {
-      midiAccess.inputs.forEach(function (entry) {
-        entry.onmidimessage = onMIDIMessage;
-      });
-    });
-  }, []);
+  const playSound = useCallback(
+    (index: number) => {
+      audios && audios[index].play();
+    },
+    [audios]
+  );
 
-  const onButtonPress = ({ row, col }: Button) => {
-    console.log(`ROW=${row} COL=${col}`);
-    setCurrentButton({ row, col });
-  };
+  const onButtonPress = useCallback(
+    (index: number) => {
+      console.log(`INDEX=${index}`);
+      setCurrentButton(index);
+      playSound(index);
+    },
+    [setCurrentButton, playSound]
+  );
 
-  const onButtonRelease = () => {
-    setCurrentButton({});
-  };
+  const onButtonRelease = useCallback(() => {
+    setCurrentButton(undefined);
+  }, [setCurrentButton]);
 
-  const isCurrentButton = ({ row, col }: Button) => {
-    return row === currentButton.row && col === currentButton.col;
-  };
+  useMidiMessages({
+    midiAccess,
+    onButtonPress,
+    onButtonRelease,
+  });
 
-  const rows = 4;
-  const cols = 4;
-  return (
+  const isCurrentButton = (index: number) => index === currentButton;
+
+  return userHasInteracted ? (
     <div className="midiButtonsContainer">
-      {[...Array(rows)].map((_, row) =>
-        [...Array(cols)].map((_, col) => (
-          <button
-            className={
-              "midiButton" +
-              (isCurrentButton({ row, col: 3 - col }) ? " selected" : "")
-            }
-            key={`button-${row}-${col}`}
-          ></button>
-        ))
-      )}
+      {Array.from({ length: 16 }, (_, index) => (
+        <button
+          className={clsx({
+            midiButton: true,
+            selected: isCurrentButton(index),
+          })}
+          key={`button-${index}`}
+          onClick={() => playSound(index)}
+        ></button>
+      ))}
     </div>
+  ) : (
+    <button className="startButton" onClick={() => setUserHasInteracted(true)}>
+      Start
+    </button>
   );
 };
 
