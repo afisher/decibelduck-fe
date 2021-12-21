@@ -1,8 +1,12 @@
+.appContainer {
+  display: flex;
+}
+
 .midiButtonsContainer {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr;
-  margin: 20px auto;
+  margin: 20px;
   max-width: 400px;
 }
 
@@ -17,6 +21,7 @@
 
 .midiButton:hover {
   cursor: pointer;
+  background-color: #226ad7;
 }
 
 .midiButton:active {
@@ -29,8 +34,24 @@
 
 .startButton {
   display: block;
-  margin: 20px auto;
+  margin: 20px;
   width: 400px;
-  height: 160px;
+  height: 200px;
   font-size: 2rem;
+  background-color: #b9f9d2;
+  border: 1px solid #64a57d;
+}
+.startButton:hover {
+  cursor: pointer;
+  background-color: #a0ebbd;
+}
+
+.sidebar {
+  margin: 20px;
+  padding: 20px;
+  font-size: 1.6rem;
+  max-width: 300px;
+  background-color: #e9f1fc;
+  border: 1px solid #b6cff3;
+  border-radius: 8px;
 }

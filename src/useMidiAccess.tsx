@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 
 /**
- * Request MIDI access from the browser
+ * Request MIDI access from the browser, if supported
  */
 const useMidiAccess = (): WebMidi.MIDIAccess | undefined => {
   const [midiAccess, setMidiAccess] = useState<WebMidi.MIDIAccess>();
 
   useEffect(() => {
-    window.navigator.requestMIDIAccess().then((m) => setMidiAccess(m));
+    if (window.navigator.requestMIDIAccess) {
+      window.navigator.requestMIDIAccess().then((m) => setMidiAccess(m));
+    }
   }, []);
 
   return midiAccess;
