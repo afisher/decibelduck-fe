@@ -38,7 +38,6 @@ const useMidiMessages = ({
 
   useEffect(() => {
     if (midiAccess) {
-      console.log(midiAccess.inputs.size);
       midiAccess.inputs.forEach(function (entry) {
         entry.onmidimessage = onMIDIMessage;
       });
